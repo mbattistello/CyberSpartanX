@@ -1,58 +1,76 @@
+
 from hub import port
 import motor_pair
 import motor
 import runloop
 import math
+import time
+
 
 WHEEL_DIA_CM = 2.2
 
-# set up inches sigma
-
+# set up inches
 def degrees_for_distance( distance_in ):
     wheel_circumfrence_in = math.pi * WHEEL_DIA_CM
     return int(( distance_in / wheel_circumfrence_in) * 360)
 
+def turn_robot_deg( degr_to_turn ):
 
-'''
-async def main(cm): 
-    #set up motor pair
-    motor_pair.pair(motor_pair.PAIR_1, port.A, port.B)
-    
-    
-    #runloop.run(main(25))
+    None
+
+# move forward def
+async def move_forward(inches_to_move):
+    await motor_pair.move_for_degrees(motor_pair.PAIR_1, degrees_for_distance(inches_to_move), 0, velocity=525)
 
 
-async def side():
-    #make the robot turn
-    motor_pair.move(motor_pair.PAIR_1, 180, velocity= 600, acceleration= 200)
-    #stopvalue
-    motor_pair.stop(motor_pair.PAIR_1, stop = 0 )
 
-    #runloop.run(main(25))
-'''
+# SPin TUrn
+async def spin_turn(turn_degrees):
+    await motor_pair.move_tank_for_degrees(motor_pair.PAIR_1, (turn_degrees), -525, 525 )
 
 
 async def main():
 
-    # Forward - 33 inches 
+    # Set up the motor pair
     motor_pair.pair(motor_pair.PAIR_1, port.C, port.D)
 
-    await motor_pair.move_for_degrees(motor_pair.PAIR_1, degrees_for_distance(30), 0, velocity=550)
-
-    #Spin turn clockwise 90 degrees
-    motor_pair.move_tank(motor_pair.PAIR_1, 180, -180)
-
-   # Forward - 23 inches
-    await motor_pair.move_for_degrees(motor_pair.PAIR_1, degrees_for_distance(65),0)
-
-    # Spin - 45 degrees
-    motor_pair.move_tank(motor_pair.PAIR_1, 90, -90)
-
-    # Lift arm
-    motor_pair.pair(motor_pair.PAIR_1, port.E, port.E)
-    await motor_pair.move_for_degrees(motor_pair.PAIR_1, degrees_for_distance(100),0)
     
-runloop.run( main() )
+
+    # Forward - 30 inches
+    await move_forward(31)
+
+
+    # Sleep - 1 sec
+    time.sleep( 1 )
+
+    # Turn - 90 degrees
+    await spin_turn(-180)
+
+    # Sleep - 1 sec
+    time.sleep( 1 )
+
+    # Move foward - 25 inches 
+    await move_forward(25)
+
+    # Sleep - 1 sec
+    time.sleep(1)
+
+    # Turn - 60 degrees
+    await spin_turn(60)
+
+    # Sleep - 1 sec
+    time.sleep(1)
+
+    # Move forward - 3 inches
+    await move_forward(2.2)
+
+    # Make the robots arm move up
+    await motor.run_for_degrees(port.E, -850, 200)
 
 
 
+    # Stop
+    motor_pair.stop
+    
+    # End of code 
+runloop.run(main())
